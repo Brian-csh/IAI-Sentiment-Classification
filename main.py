@@ -67,7 +67,7 @@ def eval(dataloader):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Sentiment Classification')
-    parser.add_argument("--model", help="CNN or RNN_LSTM", default="CNN")
+    parser.add_argument("--model", help="CNN or LSTM or MLP or GRU", default="CNN")
     parser.add_argument("--lr", type=float, default=0.001, help="learning rate")
     parser.add_argument("--epochs", type=int, default=10, help="epochs to train")
     parser.add_argument("--batch_size", type=int, default=50, help="batch size")
@@ -76,8 +76,11 @@ if __name__ == '__main__':
 
     model_name = args.model
     if model_name == "RNN_LSTM":
-        config = RNN_LSTMConfig()
+        config = LSTMConfig()
         model = RNN_LSTM(config)
+    elif model_name == "MLP":
+        config = MLPConfig()
+        model = MLP(config)
     else:
         config = CNNConfig()
         model = CNN(config)

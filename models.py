@@ -62,13 +62,13 @@ class CNN(nn.Module):
         return F.log_softmax(logits, dim=1)
 
 
-class RNN_LSTMConfig(object):
-    """Configuration for RNN_LSTM model"""
-    vocab_size = vocab_size
-    embedding_dim = 50
-    hidden_size = 50
-    num_hidden_layers = 2
-    dropout = 0.3
+class LSTMConfig(object):
+    """Configuration for RNN LSTM model"""
+    vocab_size = vocab_size # size of the vocabulary
+    embedding_dim = 50 # dimension of the embedding
+    hidden_size = 50 # dimension of the hidden state
+    num_hidden_layers = 2 # number of hidden layers
+    dropout = 0.3 # dropout rate
     pretrained_embedding = pretrained_embedding
 
 
@@ -89,7 +89,7 @@ class RNN_LSTM(nn.Module):
         self.lstm = nn.LSTM(input_size=config.embedding_dim, hidden_size=config.hidden_size, num_layers=config.num_hidden_layers, bidirectional=True)
         
         # fully-connected layer
-        self.fc = nn.Linear(config.hidden_size * 2, 2)
+        self.fc = nn.Linear(config.hidden_size * 2, 2) # maps the concatenated output to 2 classes
 
         self.dropout = nn.Dropout(config.dropout)
 
@@ -106,55 +106,78 @@ class RNN_LSTM(nn.Module):
 
 class MLPConfig(object):
     """Configuration for MLP model"""
-    vocab_size = vocab_size
-    embedding_dim = 50
-    hidden_size = 50
-    num_hidden_layers = 2
-    dropout = 0.3
+    vocab_size = vocab_size # size of the vocabulary
+    embedding_dim = 50 # dimension of the embedding
+    hidden_size = 50 # dimension of the hidden state
+    num_hidden_layers = 2 # number of hidden layers
+    dropout = 0.3 # dropout rate
     pretrained_embedding = pretrained_embedding
 
 
 class MLP(nn.Module):
-    """MLP model"""
+    """MLP model (Baseline Model)"""
     def __init__(self, config):
         super(MLP, self).__init__()
+
+        self.hidden_size = config.hidden_size
+        self.num_hidden_layers = config.num_hidden_layers
 
         # setup embedding
         self.embedding = nn.Embedding(config.vocab_size, config.embedding_dim)
         self.embedding.weight.requires_grad = False
         self.embedding.weight.data.copy_(torch.from_numpy(config.pretrained_embedding))
 
-        self.num_layers = config.num_hidden_layers
-
-
         # fully-connected layers
-        self.fc1 = nn.Linear(config.embedding_dim, config.hidden_size)
-        self.fc2 = nn.Linear(config.hidden_size, config.hidden_size)
-        self.fc3 = nn.Linear(config.hidden_size, 2)
+        self.hidden_layer = nn.Linear(config.embedding_dim, config.hidden_size)
+        # self.fc2 = nn.Linear(config.hidden_size, config.hidden_size)
+        self.output_layer = nn.Linear(config.hidden_size, 2)
         # dropout rate
         self.dropout = nn.Dropout(config.dropout)
+        self.relu = nn.ReLU()
 
 
     def forward(self, x):
         x = self.embedding(x)
         x = self.dropout(x)
+        x = self.relu(self.hidden_layer(x))
+        x = x.permute(0, 2, 1)
+        x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        return self.output_layer(x)
 
-        x = F.relu(self.fc1(x))
-        x = self.dropout(x)
 
-        x = F.relu(self.fc2(x))
-        x = self.dropout(x)
-
-        logits = self.fc3(x)
-
-        return F.log_softmax(logits, dim=1)
-
-class RNN_GRUConfig(object):
+class GRUConfig(object):
     """Configuration for RNN_GRU model"""
-    vocab_size = vocab_size
-    embedding_dim = 50
-    hidden_size = 50
-    num_hidden_layers = 2
-    dropout = 0.3
+    vocab_size = vocab_size # size of the vocabulary
+    embedding_dim = 50 # dimension of the embedding
+    hidden_size = 50 # dimension of the hidden state
+    num_hidden_layers = 2 # number of hidden layers
+    dropout = 0.3 # dropout rate
     pretrained_embedding = pretrained_embedding
 
+
+class RNN_GRU(nn.Module):
+    """Bidirectional GRU model"""
+    def __init__(self, config):
+        super(RNN_GRU, self).__init__()
+
+        self.hidden_size = config.hidden_size
+        self.num_hidden_layers = config.num_hidden_layers
+
+        # setup embedding
+        self.embedding = nn.Embedding(config.vocab_size, config.embedding_dim)
+        self.embedding.weight.requires_grad = False
+        self.embedding.weight.data.copy_(torch.from_numpy(config.pretrained_embedding))
+
+        self.gru = nn.GRU(input_size=config.embedding_dim, hidden_size = self.hidden_size, num_layers = self.num_hidden_layers, bidirectional=True)
+        
+        self.fc = nn.Linear(config.hidden_size * 2, 2) # maps the concatenated output to 2 classes
+        self.dropout = nn.Dropout(config.dropout)
+
+
+    def forward(self, inputs):
+        embedded_inputs = self.embedding(inputs)
+        h0 = torch.rand(self.num_layers*2, embedded_inputs.size(1), self.hidden_size)
+        _, hn = self.gru(embedded_inputs, h0)
+        hn = hn.view(self.num_layers, 2, -1, self.hidden_size)
+        hn = torch.cat((hn[-1, 0], hn[-1, 1]), dim=-1)
+        return self.fc(hn)
