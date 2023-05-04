@@ -9,6 +9,7 @@ from tqdm import tqdm
 from models import *
 from preprocess_utils import *
 from load_utils import *
+from torch.utils.tensorboard import SummaryWriter
 
 
 def save_model(model, step):
@@ -91,11 +92,24 @@ if __name__ == '__main__':
 
     train_dataloader, validation_dataloader, test_dataloader = get_dataloader(batch_size, max_len)
 
+    writer = SummaryWriter()
+
     for step in tqdm(range(epochs)):
         train_loss, train_acc, train_f1 = train(train_dataloader)
         validation_loss, validation_acc, validation_f1 = eval(validation_dataloader)
         test_loss, test_acc, test_f1 = eval(test_dataloader)
+        writer.add_scalar("Train Loss", train_loss, step)
+        writer.add_scalar("Train Acc", train_acc, step)
+        writer.add_scalar("Train f1", train_f1, step)
+        writer.add_scalar("Validation Loss", validation_loss, step)
+        writer.add_scalar("Validation Acc", validation_acc, step)
+        writer.add_scalar("Validation f1", validation_f1, step)
+        writer.add_scalar("Test Loss", test_loss, step)
+        writer.add_scalar("Test Acc", test_acc, step)
+        writer.add_scalar("Test f1", test_f1, step)
         print(f"Epoch {step + 1}/{epochs}")
-        print(f"Train loss: {train_loss:.4f}, Train acc: {train_acc:.4f}, Train f1: {train_f1:.4f}")
-        print(f"Validation loss: {validation_loss:.4f}, Validation acc: {validation_acc:.4f}, Validation f1: {validation_f1:.4f}")
+        print(f"Train loss: {train_loss:.4f}, Train acc: {train_acc:.4f}")
+        print(f"Validation loss: {validation_loss:.4f}, Validation acc: {validation_acc:.4f}")
         print(f"Test loss: {test_loss:.4f}, Test acc: {test_acc:.4f}, Test f1: {test_f1:.4f}")
+
+    writer.close()

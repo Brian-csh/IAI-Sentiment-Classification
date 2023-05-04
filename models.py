@@ -14,7 +14,7 @@ class CNNConfig(object):
     vocab_size = vocab_size
     embedding_dim = 50
     num_filters = 20
-    kernel_sizes = [3, 4, 5]
+    kernel_sizes = [3, 5, 7]
     dropout = 0.3
     pretrained_embedding = pretrained_embedding
 
@@ -105,5 +105,4 @@ class RNN_GRUConfig(object):
     num_hidden_layers = 2
     dropout = 0.3
     pretrained_embedding = pretrained_embedding
-
 
