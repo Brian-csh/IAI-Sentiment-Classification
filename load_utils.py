@@ -33,6 +33,7 @@ def load_data_from_text(path, token2id, max_len=50):
 
 # get dataloader
 def get_dataloader(batch_size, max_len):
+    """ returns three dataloaders for train, validation and test datasets"""
     token2id = build_token2id_dict()
 
     train_texts, train_labels = load_data_from_text('Dataset/train.txt', token2id, max_len)
@@ -48,10 +49,3 @@ def get_dataloader(batch_size, max_len):
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
     return train_dataloader, validation_dataloader, test_dataloader
-
-
-# if __name__ == '__main__':
-#     token2id = build_token2id_dict()
-#     text, labels = load_data_from_text('sample.txt', token2id, 80)
-#     print(text.shape)
-#     print(labels.shape)

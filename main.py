@@ -13,12 +13,12 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 def save_model(model, step):
-    path = 'logs/cnn_{}.pth'.format(step)
-    torch.save(model.state_dict(), path)
+    path = 'logs/{}_{}.pt'.format(model_name, step)
+    torch.save(model, path)
 
 
 def train(dataloader):
-    model.train()
+    model.train() # train mode
     train_loss = 0.0
     train_acc = 0.0
     count = 0
@@ -44,7 +44,7 @@ def train(dataloader):
 
 
 def eval(dataloader):
-    model.eval()
+    model.eval() # evaluation mode
     eval_loss = 0.0
     eval_acc = 0.0
     count = 0
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
     writer = SummaryWriter()
 
-    for step in tqdm(range(epochs)):
+    for step in tqdm(range(1, epochs+1)):
         train_loss, train_acc, train_f1 = train(train_dataloader)
         validation_loss, validation_acc, validation_f1 = eval(validation_dataloader)
         test_loss, test_acc, test_f1 = eval(test_dataloader)
@@ -107,10 +107,10 @@ if __name__ == '__main__':
         writer.add_scalar("Test Loss", test_loss, step)
         writer.add_scalar("Test Acc", test_acc, step)
         writer.add_scalar("Test f1", test_f1, step)
-        print(f"Epoch {step + 1}/{epochs}")
+        print(f"Epoch {step}/{epochs}")
         print(f"Train loss: {train_loss:.4f}, Train acc: {train_acc:.4f}")
         print(f"Validation loss: {validation_loss:.4f}, Validation acc: {validation_acc:.4f}")
         print(f"Test loss: {test_loss:.4f}, Test acc: {test_acc:.4f}, Test f1: {test_f1:.4f}")
-        # save_model(model, step)
+        save_model(model, step)
 
     writer.close()
