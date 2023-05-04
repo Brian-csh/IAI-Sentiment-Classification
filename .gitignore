@@ -2,3 +2,5 @@ __pycache__
 Dataset
 sample.txt
 runs
+logs
+token2id.json

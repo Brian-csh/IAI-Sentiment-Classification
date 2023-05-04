@@ -111,5 +111,6 @@ if __name__ == '__main__':
         print(f"Train loss: {train_loss:.4f}, Train acc: {train_acc:.4f}")
         print(f"Validation loss: {validation_loss:.4f}, Validation acc: {validation_acc:.4f}")
         print(f"Test loss: {test_loss:.4f}, Test acc: {test_acc:.4f}, Test f1: {test_f1:.4f}")
+        # save_model(model, step)
 
     writer.close()

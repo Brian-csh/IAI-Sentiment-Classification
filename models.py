@@ -13,9 +13,9 @@ class CNNConfig(object):
     """Configuration for CNN model"""
     vocab_size = vocab_size
     embedding_dim = 50
-    num_filters = 20
-    kernel_sizes = [3, 5, 7]
-    dropout = 0.3
+    num_filters = 100
+    kernel_sizes = [3, 4, 5]
+    dropout = 0.5
     pretrained_embedding = pretrained_embedding
 
 
