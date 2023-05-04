@@ -14,7 +14,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 def save_model(model, step):
     path = 'logs/{}_{}.pt'.format(model_name, step)
-    torch.save(model, path)
+    torch.save(model.state_dict(), path)
 
 
 def train(dataloader):

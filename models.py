@@ -73,6 +73,7 @@ class RNN_LSTMConfig(object):
 
 
 class RNN_LSTM(nn.Module):
+    """Bidirection LSTM model"""
     def __init__(self, config):
         super(RNN_LSTM, self).__init__()
 
