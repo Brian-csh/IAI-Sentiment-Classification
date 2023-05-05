@@ -13,6 +13,7 @@ class CNNConfig(object):
     """Configuration for CNN model"""
     vocab_size = vocab_size # size of the vocabulary
     embedding_dim = 50 # dimension of the embedding
+    update_embeddings = True
     num_filters = 100 # number of filters for each size of kernel
     kernel_sizes = [3, 4, 5] # window sizes
     dropout = 0.5 # dropout rate
@@ -26,7 +27,7 @@ class CNN(nn.Module):
 
         # setup embedding
         self.embedding = nn.Embedding(config.vocab_size, config.embedding_dim)
-        self.embedding.weight.requires_grad = False
+        self.embedding.weight.requires_grad = config.update_embeddings
         self.embedding.weight.data.copy_(torch.from_numpy(config.pretrained_embedding))
 
         # convolution layers
@@ -66,6 +67,7 @@ class LSTMConfig(object):
     """Configuration for RNN LSTM model"""
     vocab_size = vocab_size # size of the vocabulary
     embedding_dim = 50 # dimension of the embedding
+    update_embeddings = True
     hidden_size = 50 # dimension of the hidden state
     num_hidden_layers = 2 # number of hidden layers
     dropout = 0.3 # dropout rate
@@ -82,7 +84,7 @@ class RNN_LSTM(nn.Module):
 
         # setup embedding
         self.embedding = nn.Embedding(config.vocab_size, config.embedding_dim)
-        self.embedding.weight.requires_grad = False
+        self.embedding.weight.requires_grad = config.update_embeddings
         self.embedding.weight.data.copy_(torch.from_numpy(config.pretrained_embedding))
 
         # bidirectional LSTM with 2 layers
@@ -108,6 +110,7 @@ class MLPConfig(object):
     """Configuration for MLP model"""
     vocab_size = vocab_size # size of the vocabulary
     embedding_dim = 50 # dimension of the embedding
+    update_embeddings = False
     hidden_size = 50 # dimension of the hidden state
     num_hidden_layers = 2 # number of hidden layers
     dropout = 0.3 # dropout rate
@@ -124,7 +127,7 @@ class MLP(nn.Module):
 
         # setup embedding
         self.embedding = nn.Embedding(config.vocab_size, config.embedding_dim)
-        self.embedding.weight.requires_grad = False
+        self.embedding.weight.requires_grad = config.update_embeddings
         self.embedding.weight.data.copy_(torch.from_numpy(config.pretrained_embedding))
 
         # fully-connected layers
@@ -149,6 +152,7 @@ class GRUConfig(object):
     """Configuration for RNN_GRU model"""
     vocab_size = vocab_size # size of the vocabulary
     embedding_dim = 50 # dimension of the embedding
+    update_embeddings = True
     hidden_size = 50 # dimension of the hidden state
     num_hidden_layers = 2 # number of hidden layers
     dropout = 0.3 # dropout rate
@@ -165,7 +169,7 @@ class RNN_GRU(nn.Module):
 
         # setup embedding
         self.embedding = nn.Embedding(config.vocab_size, config.embedding_dim)
-        self.embedding.weight.requires_grad = False
+        self.embedding.weight.requires_grad = config.update_embeddings
         self.embedding.weight.data.copy_(torch.from_numpy(config.pretrained_embedding))
 
         self.gru = nn.GRU(input_size=config.embedding_dim, hidden_size = self.hidden_size, num_layers = self.num_hidden_layers, bidirectional=True)
