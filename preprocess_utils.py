@@ -5,7 +5,7 @@ import os
 
 
 def build_token2id_dict():
-    """build the vocabulary to assign a tokenid to each token in the corpus."""
+    """build the vocabulary to assign a token id to each token in the corpus."""
     token2id = {}
     # files = ['sample.txt']
     files = ['Dataset/train.txt', 'Dataset/validation.txt', 'Dataset/test.txt']

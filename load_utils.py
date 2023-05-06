@@ -6,11 +6,12 @@ from preprocess_utils import *
 
 
 def text_to_tensor(path, token2id, max_len=50):
-    """ returns two arrays
-        contents is the array of token ids of the text contents,
-            each row consists of a sentence, and each columns stores
-            the corresponding token id of the tokens in the sentence.
-        labels is the array of label of each sentence.
+    """returns two arrays
+       
+    contents is the array of token ids of the text contents,
+    each row consists of a sentence, and each columns stores
+    the corresponding token id of the tokens in the sentence.
+    labels is the array of label of each sentence.
     """
     # texts = np.zeros(max_len)
     texts = []
@@ -36,7 +37,7 @@ def text_to_tensor(path, token2id, max_len=50):
 
 # get dataloader
 def get_dataloader(batch_size, max_len):
-    """ returns three dataloaders for train, validation and test datasets"""
+    """returns three dataloaders for train, validation and test datasets"""
     token2id = build_token2id_dict()
 
     train_texts, train_labels = text_to_tensor('Dataset/train.txt', token2id, max_len)

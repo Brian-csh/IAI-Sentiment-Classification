@@ -13,11 +13,13 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 def save_model(model, step):
+    """save the model's state_dict in logs directory"""
     path = 'logs/{}_{}.pt'.format(model_name, step)
     torch.save(model.state_dict(), path)
 
 
 def train(dataloader):
+    """train the model on the given dataloader and return the corresponding metrics"""
     model.train() # train mode
     train_loss = 0.0
     train_acc = 0.0
@@ -44,6 +46,7 @@ def train(dataloader):
 
 
 def eval(dataloader):
+    """evaluate the model and return the metrics"""
     model.eval() # evaluation mode
     eval_loss = 0.0
     eval_acc = 0.0

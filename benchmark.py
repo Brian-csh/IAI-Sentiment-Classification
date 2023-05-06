@@ -11,6 +11,7 @@ from load_utils import *
 
 
 def eval(dataloader):
+    """return evaluation loss, accuracy, and f1"""
     model.eval() # evaluation mode
     eval_loss = 0.0
     eval_acc = 0.0
