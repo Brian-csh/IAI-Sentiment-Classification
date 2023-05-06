@@ -75,12 +75,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     model_name = args.model
-    if model_name == "RNN_LSTM":
+    if model_name == "LSTM":
         config = LSTMConfig()
-        model = RNN_LSTM(config)
+        model = LSTM(config)
     elif model_name == "MLP":
         config = MLPConfig()
         model = MLP(config)
+    elif model_name == "GRU":
+        config = GRUConfig()
+        model = GRU(config)
     else:
         config = CNNConfig()
         model = CNN(config)

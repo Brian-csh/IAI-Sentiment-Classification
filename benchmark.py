@@ -34,20 +34,34 @@ def eval(dataloader):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Sentiment Classification Eval')
-    parser.add_argument("model_type", help="CNN or RNN_LSTM or MLP or RNN_GRU")
+    parser.add_argument("model_type", help="CNN or LSTM or MLP or GRU")
     parser.add_argument("model_path", help="path to model")
     args = parser.parse_args()
 
     model_name = args.model_type
     model_path = args.model_path
-    if (model_name == "CNN"):
+    if model_name == "CNN":
         config = CNNConfig()
         model = CNN(config)
-        model.load_state_dict(torch.load(model_path))
+    elif model_name == "LSTM":
+        config = LSTMConfig()
+        model = LSTM(config)
+    elif model_name == "MLP":
+        config = MLPConfig()
+        model = MLP(config)
+    elif model_name == "GRU":
+        config = GRUConfig()
+        model = GRU(config)
+    else:
+        exit(1)
+        
+    model.load_state_dict(torch.load(model_path))
     
     batch_size = 50
     max_len = 120
     criterion = nn.CrossEntropyLoss()
     _, _, test_dataloader = get_dataloader(batch_size, max_len)
     test_loss, test_acc, test_f1 = eval(test_dataloader)
+    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Number of trainable parameters: {num_params}")
     print(f"test_loss: {test_loss:.4f}, test_acc: {test_acc:.4f}, test_f1: {test_f1:.4f}")

@@ -13,7 +13,7 @@ class CNNConfig(object):
     """Configuration for CNN model"""
     vocab_size = vocab_size # size of the vocabulary
     embedding_dim = 50 # dimension of the embedding
-    update_embeddings = True
+    update_embeddings = True # embedding is to be updated or static
     num_filters = 100 # number of filters for each size of kernel
     kernel_sizes = [3, 4, 5] # window sizes
     dropout = 0.5 # dropout rate
@@ -55,7 +55,7 @@ class CNN(nn.Module):
         x2 = self.conv_and_pool(x, self.conv2)
         x3 = self.conv_and_pool(x, self.conv3)
 
-        x = torch.cat((x1, x2, x3), 1)
+        x = torch.cat((x1, x2, x3), 1) # concatenate the outputs
         x = self.dropout(x)
 
         logits = self.fc(x)
@@ -67,17 +67,17 @@ class LSTMConfig(object):
     """Configuration for RNN LSTM model"""
     vocab_size = vocab_size # size of the vocabulary
     embedding_dim = 50 # dimension of the embedding
-    update_embeddings = True
+    update_embeddings = True # embedding is to be updated or static
     hidden_size = 50 # dimension of the hidden state
     num_hidden_layers = 2 # number of hidden layers
-    dropout = 0.3 # dropout rate
+    dropout = 0.1 # dropout rate
     pretrained_embedding = pretrained_embedding
 
 
-class RNN_LSTM(nn.Module):
-    """Bidirection LSTM model"""
+class LSTM(nn.Module):
+    """Bidirectional LSTM model"""
     def __init__(self, config):
-        super(RNN_LSTM, self).__init__()
+        super(LSTM, self).__init__()
 
         self.hidden_size = config.hidden_size
         self.num_hidden_layers = config.num_hidden_layers
@@ -98,9 +98,9 @@ class RNN_LSTM(nn.Module):
 
     def forward(self, inputs):
         embedded_inputs = self.embedding(inputs) # embed
-        _, (hn, _) = self.lstm(embedded_inputs.permute(1, 0, 2)) # pass through LSTM
-        hn = hn.view(self.num_hidden_layers, 2, -1, self.hidden_size)
-        hn = torch.cat((hn[-1, 0], hn[-1, 1]), dim=-1)
+        _, (hn, _) = self.lstm(embedded_inputs.permute(1, 0, 2)) # permute to (seq_len, batch_size, embedding_dim) and pass through LSTM
+        hn = hn.view(self.num_hidden_layers, 2, -1, self.hidden_size) # reshape to (num_layers, 2 (for bidirectional), batch_size, hidden_size)
+        hn = torch.cat((hn[-1, 0], hn[-1, 1]), dim=-1) # extract the hidden state of last layer
         hn = self.dropout(hn)
         out = self.fc(hn)
         return F.log_softmax(out, dim=1)
@@ -110,7 +110,7 @@ class MLPConfig(object):
     """Configuration for MLP model"""
     vocab_size = vocab_size # size of the vocabulary
     embedding_dim = 50 # dimension of the embedding
-    update_embeddings = False
+    update_embeddings = False # embedding is to be updated or static
     hidden_size = 50 # dimension of the hidden state
     num_hidden_layers = 2 # number of hidden layers
     dropout = 0.3 # dropout rate
@@ -132,9 +132,8 @@ class MLP(nn.Module):
 
         # fully-connected layers
         self.hidden_layer = nn.Linear(config.embedding_dim, config.hidden_size)
-        # self.fc2 = nn.Linear(config.hidden_size, config.hidden_size)
         self.output_layer = nn.Linear(config.hidden_size, 2)
-        # dropout rate
+        # dropout rate and relu
         self.dropout = nn.Dropout(config.dropout)
         self.relu = nn.ReLU()
 
@@ -144,25 +143,25 @@ class MLP(nn.Module):
         x = self.dropout(x)
         x = self.relu(self.hidden_layer(x))
         x = x.permute(0, 2, 1)
-        x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        x = F.max_pool1d(x, x.size(2)).squeeze(2) # take max
         return self.output_layer(x)
 
 
 class GRUConfig(object):
-    """Configuration for RNN_GRU model"""
+    """Configuration for RNN GRU model"""
     vocab_size = vocab_size # size of the vocabulary
     embedding_dim = 50 # dimension of the embedding
-    update_embeddings = True
+    update_embeddings = True # embedding is to be updated or static
     hidden_size = 50 # dimension of the hidden state
     num_hidden_layers = 2 # number of hidden layers
-    dropout = 0.3 # dropout rate
+    dropout = 0 # dropout rate
     pretrained_embedding = pretrained_embedding
 
 
-class RNN_GRU(nn.Module):
+class GRU(nn.Module):
     """Bidirectional GRU model"""
     def __init__(self, config):
-        super(RNN_GRU, self).__init__()
+        super(GRU, self).__init__()
 
         self.hidden_size = config.hidden_size
         self.num_hidden_layers = config.num_hidden_layers
@@ -180,8 +179,11 @@ class RNN_GRU(nn.Module):
 
     def forward(self, inputs):
         embedded_inputs = self.embedding(inputs)
-        h0 = torch.rand(self.num_layers*2, embedded_inputs.size(1), self.hidden_size)
-        _, hn = self.gru(embedded_inputs, h0)
-        hn = hn.view(self.num_layers, 2, -1, self.hidden_size)
-        hn = torch.cat((hn[-1, 0], hn[-1, 1]), dim=-1)
-        return self.fc(hn)
+        embedded_inputs = embedded_inputs.permute(1, 0, 2)
+        # h0 = torch.rand(self.num_layers*2, embedded_inputs.size(1), self.hidden_size)
+        # _, hn = self.gru(embedded_inputs, h0)
+        _, hn = self.gru(embedded_inputs) # h0 is initialized to 0 by default
+        hn = hn.view(self.num_hidden_layers, 2, -1, self.hidden_size) # reshape to (num_layers, 2 (for bidirectional), batch_size, hidden_size)
+        hn = torch.cat((hn[-1, 0], hn[-1, 1]), dim=-1) # extract the hidden state of last layer
+        out = self.fc(hn)
+        return F.log_softmax(out, dim=1)
