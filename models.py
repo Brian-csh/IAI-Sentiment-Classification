@@ -131,8 +131,8 @@ class MLP(nn.Module):
         self.embedding.weight.data.copy_(torch.from_numpy(config.pretrained_embedding))
 
         # fully-connected layers
-        self.hidden_layer = nn.Linear(config.embedding_dim, config.hidden_size)
-        self.output_layer = nn.Linear(config.hidden_size, 2)
+        self.hidden_layer1 = nn.Linear(config.embedding_dim, config.hidden_size)
+        self.hidden_layer2 = nn.Linear(config.hidden_size, 2)
         # dropout rate and relu
         self.dropout = nn.Dropout(config.dropout)
         self.relu = nn.ReLU()
@@ -141,10 +141,10 @@ class MLP(nn.Module):
     def forward(self, x):
         x = self.embedding(x)
         x = self.dropout(x)
-        x = self.relu(self.hidden_layer(x))
+        x = self.relu(self.hidden_layer1(x))
         x = x.permute(0, 2, 1)
         x = F.max_pool1d(x, x.size(2)).squeeze(2) # take max
-        return self.output_layer(x)
+        return self.hidden_layer2(x)
 
 
 class GRUConfig(object):

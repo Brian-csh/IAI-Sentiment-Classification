@@ -65,4 +65,4 @@ if __name__ == '__main__':
     test_loss, test_acc, test_f1 = eval(test_dataloader)
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Number of trainable parameters: {num_params}")
-    print(f"test_loss: {test_loss:.4f}, test_acc: {test_acc:.4f}, test_f1: {test_f1:.4f}")
+    print(f"test_acc: {test_acc:.4f}, test_f1: {test_f1:.4f}")
