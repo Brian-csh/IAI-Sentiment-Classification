@@ -10,6 +10,9 @@ from preprocess_utils import *
 from load_utils import *
 
 
+"""Usage: python benchmark.py <model_name> <path to state dict>"""
+
+
 def eval(dataloader):
     """return evaluation loss, accuracy, and f1"""
     model.eval() # evaluation mode
